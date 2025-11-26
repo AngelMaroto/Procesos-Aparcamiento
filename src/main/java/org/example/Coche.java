@@ -49,7 +49,7 @@ public class Coche extends Thread{
         this.aparcamiento.ocuparPlaza(this, plazaLibre);
         Random tiempo=new Random();
         int tOcupado=this.tMinAparcar+tiempo.nextInt(tMaxAparcar-tMinAparcar+1);
-        System.out.println(this.matricula+" esta  "+tOcupado+" segundos, ocupando la plaza");
+        System.out.println(this.matricula+" esta  "+tOcupado+" segundos, ocupando la plaza"+plazaLibre);
         try {
             Thread.sleep(tOcupado*1000);
         }catch(InterruptedException e){
