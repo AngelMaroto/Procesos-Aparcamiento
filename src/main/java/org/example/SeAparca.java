@@ -3,15 +3,15 @@ package org.example;
 import java.util.Random;
 
 public class SeAparca {
-    static void main(){
+   static void main(String[] args) {
 
-        final Aparcamiento aparcamiento = new Aparcamiento();
+       Aparcamiento aparcamiento = new Aparcamiento();
         int tMin = 5;
         int tMax = 30;
         int tEsperaMin=5;
         int tEsperaMax=30;
-        int tiempo;
-        int matriculaC = 0;
+        int tiempo ;
+        int matriculaC = 1;
 
         Random rand = new Random();
 
@@ -21,7 +21,7 @@ public class SeAparca {
             try {
                 Thread.sleep(tiempo*100);
                 Coche c = new Coche("Matricula-> "+String.valueOf(matriculaC), aparcamiento, tMin, tMax);
-                c.start();
+                new Thread(c).start();
                 matriculaC++;
             }catch (InterruptedException e){
                 System.out.println("interrumpido");

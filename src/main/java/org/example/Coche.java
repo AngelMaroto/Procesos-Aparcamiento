@@ -2,14 +2,12 @@ package org.example;
 
 import java.util.Random;
 
-public class Coche extends Thread{
-
+public class Coche implements Runnable {
     private String matricula;
     private final Aparcamiento aparcamiento;
     private final int tMinAparcar;
     private final int tMaxAparcar;
-
-
+    private int miPlaza = -1;
 
     public Coche(String matricula, Aparcamiento aparcamiento, int tMinAparcar, int tMaxAparcar) {
         this.matricula = matricula;
@@ -18,52 +16,27 @@ public class Coche extends Thread{
         this.tMaxAparcar = tMaxAparcar;
     }
 
-    public String getMatricula() {
-        return matricula;
-    }
-
-    public void setMatricula(String matricula) {
-        this.matricula = matricula;
-    }
+    public String getMatricula() { return matricula; }
 
     @Override
     public void run() {
-        //Autorizarse
-        Boolean autorizado=false;
-        while(!autorizado){
-            autorizado=this.aparcamiento.autorizar(this);
-            if(autorizado==false){
-                System.out.println(this.matricula+" no puede pasas");
-                try{
-                    this.aparcamiento.wait();
-                }catch(InterruptedException e){
-                    System.out.println(this.matricula+" esta esperando");
-                }
-            }
-        }
-        //OCUPAR
-        int plazaLibre = this.aparcamiento.plazaLibre();
+        // 1. ENTRAR (espera y ocupa atómicamente)
+        miPlaza = aparcamiento.entrar(matricula);
+        if (miPlaza == -1) return;  // Error
 
-        //Entra al aparcamiento
-        System.out.println(this.matricula+" puede pasar");
-        this.aparcamiento.ocuparPlaza(this, plazaLibre);
-        Random tiempo=new Random();
-        int tOcupado=this.tMinAparcar+tiempo.nextInt(tMaxAparcar-tMinAparcar+1);
-        System.out.println(this.matricula+" esta  "+tOcupado+" segundos, ocupando la plaza"+plazaLibre);
+        // 2. APARCAR
+        Random tiempo = new Random();
+        int tOcupado = tMinAparcar + tiempo.nextInt(tMaxAparcar - tMinAparcar + 1);
+        System.out.println(matricula + " aparca " + tOcupado + "s en plaza " + (miPlaza+1));
+
         try {
-            Thread.sleep(tOcupado*1000);
-        }catch(InterruptedException e){
-            System.out.println(this.matricula+" esta ocupando la plaza "+plazaLibre);
-        }
-        //SALIR
-
-        synchronized (this.aparcamiento) {
-            System.out.println(this.matricula+"libera la plaza"+plazaLibre);
-            this.aparcamiento.liberarPlaza(plazaLibre);
-
-            aparcamiento.notifyAll();
+            Thread.sleep(tOcupado * 1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
 
+        // 3. SALIR
+        aparcamiento.salir(miPlaza);
     }
-
 }
+

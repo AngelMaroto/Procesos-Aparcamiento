@@ -1,37 +1,55 @@
 package org.example;
 
 public class Aparcamiento {
-
-    private final String[] plazas = new String[2];
-
+    private final String[] plazas;
     private static final int MAX_COCHES = 5;
 
+    public Aparcamiento() {
+        this.plazas = new String[MAX_COCHES];
+    }
 
-    synchronized public boolean autorizar(Coche coche) {
-        for (int i = 0; i < plazas.length; i++) {
-            if (plazas[i] == null || plazas[i].equals("")) {
-                return true;
+    // MÉTODO ÚNICO: todo dentro de synchronized
+    public int entrar(String matricula) {
+        synchronized(this) {
+            // Esperar mientras NO haya plaza libre
+            while (!hayPlazaLibre()) {
+                try {
+                    System.out.println(matricula + " esta esperando");
+                    this.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return -1;
+                }
             }
+
+            // Hay plaza: encontrarla y ocuparla ATÓMICAMENTE
+            int plazaLibre = encontrarPlazaLibre();
+            plazas[plazaLibre] = matricula;
+            System.out.println(matricula + " ocupa plaza " + (plazaLibre + 1));
+            return plazaLibre;
+        }
+    }
+
+    public void salir(int numPlaza) {
+        synchronized(this) {
+            String matricula = plazas[numPlaza];
+            plazas[numPlaza] = null;
+            System.out.println(matricula + " libera plaza " + (numPlaza + 1));
+            this.notifyAll();  // Despierta a todos los que esperan
+        }
+    }
+
+    private boolean hayPlazaLibre() {
+        for (String plaza : plazas) {
+            if (plaza == null) return true;
         }
         return false;
     }
-    synchronized public int plazaLibre(){
-        int plazaLibre=0;
-        for (int i = 0; i < this.plazas.length; i++) {
-            if(plazas[i]==null||plazas[i].equals("")){
-                plazaLibre=i;
-                break;
-            }
+
+    private int encontrarPlazaLibre() {
+        for (int i = 0; i < plazas.length; i++) {
+            if (plazas[i] == null) return i;
         }
-        return plazaLibre;
+        return -1;  // No debería llegar aquí
     }
-
-    synchronized public void ocuparPlaza(Coche coche, int numPlaza) {
-        plazas[numPlaza] = coche.getMatricula();
-    }
-
-    synchronized public void liberarPlaza(int numPlaza) {
-        plazas[numPlaza] = "";
-    }
-
 }
