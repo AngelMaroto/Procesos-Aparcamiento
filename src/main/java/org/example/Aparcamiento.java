@@ -2,7 +2,7 @@ package org.example;
 
 public class Aparcamiento {
     private final String[] plazas;
-    private static final int MAX_COCHES = 5;
+    private static final int MAX_COCHES = 50;
 
     public Aparcamiento() {
         this.plazas = new String[MAX_COCHES];
