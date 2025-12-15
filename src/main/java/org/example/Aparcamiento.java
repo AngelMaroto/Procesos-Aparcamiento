@@ -8,7 +8,7 @@ public class Aparcamiento {
         this.plazas = new String[MAX_COCHES];
     }
 
-    // MÉTODO ÚNICO: todo dentro de synchronized
+
     public int entrar(String matricula) {
         synchronized(this) {
             // Esperar mientras NO haya plaza libre
@@ -21,7 +21,6 @@ public class Aparcamiento {
                     return -1;
                 }
             }
-
             // Hay plaza: encontrarla y ocuparla ATÓMICAMENTE
             int plazaLibre = encontrarPlazaLibre();
             plazas[plazaLibre] = matricula;

@@ -3,7 +3,7 @@ package org.example;
 import java.util.Random;
 
 public class SeAparca {
-   static void main(String[] args) {
+   public static void main(String[] args) {
 
        Aparcamiento aparcamiento = new Aparcamiento();
         int tMin = 5;
